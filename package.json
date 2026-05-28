@@ -2,6 +2,20 @@
   "name": "pi-prd-runner",
   "version": "0.1.0",
   "description": "Serial PRD runner for Pi projects using Git worktrees.",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "prd",
+    "worktree"
+  ],
+  "pi": {
+    "skills": [
+      "./skills"
+    ],
+    "prompts": [
+      "./prompts"
+    ]
+  },
   "type": "module",
   "bin": {
     "pi-prd-runner": "dist/cli.js"
