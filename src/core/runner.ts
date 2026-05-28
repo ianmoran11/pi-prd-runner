@@ -30,6 +30,7 @@ import { selectNextPrd } from "./scheduler.js";
 import { createPrdState, transitionPrd } from "./state-machine.js";
 import { loadState, writeState } from "./state.js";
 import { ensurePrdBranch } from "../git/branches.js";
+import { MergeConflictError, mergeCommitMessage, squashMerge } from "../git/merge.js";
 import { ensurePrdWorktree } from "../git/worktrees.js";
 
 export interface RunOptions {
@@ -146,7 +147,7 @@ async function processPrd(
   prd: ParsedPrd,
   runId: string,
   options: RunOptions
-): Promise<{ state: RunnerState; status: "approved" | "stuck" }> {
+): Promise<{ state: RunnerState; status: "approved" | "merged" | "stuck" }> {
   const maxReviewCycles = options.maxReviewCycles ?? prd.maxReviewCycles ?? config.run.maxReviewCycles;
   state = ensurePrdState(state, prd, maxReviewCycles);
   state = await writeState(cwd, state).then(() => state);
@@ -260,7 +261,7 @@ async function processPrd(
 
     if (review.review.decision === "approved") {
       state = await transitionPrd(cwd, state, prd.id, "approved", { runId });
-      return { state, status: "approved" };
+      return mergeApprovedPrd(cwd, host, config, state, prd, runId, branchResult.branch, options);
     }
 
     if (review.review.decision === "blocked") {
@@ -278,6 +279,89 @@ async function processPrd(
 
   state = await transitionToStuck(cwd, state, prd, runId, "Exceeded maximum review cycles.", state.prds[prd.id].attempt, "Maximum attempts reached.");
   return { state, status: "stuck" };
+}
+
+async function shouldMergeApproved(
+  host: PiHost,
+  mode: RunMode,
+  config: RunnerConfig,
+  prd: ParsedPrd,
+  options: RunOptions
+): Promise<boolean> {
+  if (options.noAutoMerge) {
+    return false;
+  }
+
+  if (mode === "auto") {
+    return config.auto.autoMerge;
+  }
+
+  if (config.supervised.autoMerge) {
+    return true;
+  }
+
+  const result = await host.prompt?.({
+    message: `PRD ${prd.id} approved. Merge into ${config.merge.targetBranch}?`,
+    defaultChoice: "merge",
+    choices: [
+      { key: "merge", label: "merge into main" },
+      { key: "diff", label: "view diff" },
+      { key: "review", label: "view latest report" },
+      { key: "skip", label: "skip merge" },
+      { key: "stop", label: "stop" }
+    ]
+  });
+
+  if (result?.choice === "diff") {
+    host.log("Diff view requested; merge skipped for this prompt cycle.");
+    return false;
+  }
+
+  if (result?.choice === "review") {
+    host.log("Review report requested; merge skipped for this prompt cycle.");
+    return false;
+  }
+
+  return (result?.choice ?? "merge") === "merge";
+}
+
+async function mergeApprovedPrd(
+  cwd: string,
+  host: PiHost,
+  config: RunnerConfig,
+  state: RunnerState,
+  prd: ParsedPrd,
+  runId: string,
+  branch: string,
+  options: RunOptions
+): Promise<{ state: RunnerState; status: "approved" | "merged" | "stuck" }> {
+  if (!(await shouldMergeApproved(host, state.mode, config, prd, options))) {
+    return { state, status: "approved" };
+  }
+
+  state = await transitionPrd(cwd, state, prd.id, "merging", { runId });
+  await appendEvent(cwd, { type: "merge.started", runId, prd: prd.id, branch, target: config.merge.targetBranch });
+
+  try {
+    const merge = await squashMerge(cwd, {
+      branch,
+      targetBranch: config.merge.targetBranch,
+      message: mergeCommitMessage(prd),
+      requireCleanWorkingTree: config.merge.requireCleanWorkingTree
+    });
+    state = await updatePrdFields(cwd, state, prd.id, { mergeCommit: merge.commit });
+    state = await transitionPrd(cwd, state, prd.id, "merged", { runId });
+    await appendEvent(cwd, { type: "merge.completed", runId, prd: prd.id, branch, target: config.merge.targetBranch, metadata: { commit: merge.commit } });
+    return { state, status: "merged" };
+  } catch (error) {
+    if (error instanceof MergeConflictError) {
+      await appendEvent(cwd, { type: "merge.conflict", runId, prd: prd.id, branch, target: config.merge.targetBranch, reason: error.stderr });
+      state = await transitionToStuck(cwd, state, prd, runId, "Merge conflict.", state.prds[prd.id].attempt, error.stderr);
+      return { state, status: "stuck" };
+    }
+
+    throw error;
+  }
 }
 
 function renderReviewReport(prdId: string, review: ReviewResult): string {

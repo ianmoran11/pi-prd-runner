@@ -97,7 +97,7 @@ describe("core runner loop", () => {
     host.agentSessionHandler = async (spec: AgentSessionSpec) =>
       spec.kind === "review" ? { ok: true, output: reviewOutput("approved") } : { ok: true, output: "implemented" };
 
-    const result = await runPrdQueue(repoDir, host, { mode: "auto" });
+    const result = await runPrdQueue(repoDir, host, { mode: "auto", noAutoMerge: true });
     const state = await loadState(repoDir);
 
     expect(result.status).toBe("completed");
@@ -120,7 +120,7 @@ describe("core runner loop", () => {
       return { ok: true, output: "implemented" };
     };
 
-    const result = await runPrdQueue(repoDir, host, { mode: "auto", maxReviewCycles: 3 });
+    const result = await runPrdQueue(repoDir, host, { mode: "auto", maxReviewCycles: 3, noAutoMerge: true });
     const state = await loadState(repoDir);
 
     expect(result.status).toBe("completed");
@@ -136,7 +136,7 @@ describe("core runner loop", () => {
     host.agentSessionHandler = async (spec: AgentSessionSpec) =>
       spec.kind === "review" ? { ok: true, output: reviews.shift() ?? reviewOutput("approved") } : { ok: true, output: "implemented" };
 
-    const result = await runPrdQueue(repoDir, host, { mode: "auto", maxReviewCycles: 3 });
+    const result = await runPrdQueue(repoDir, host, { mode: "auto", maxReviewCycles: 3, noAutoMerge: true });
     const state = await loadState(repoDir);
 
     expect(result.status).toBe("completed");

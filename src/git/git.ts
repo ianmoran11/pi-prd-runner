@@ -112,6 +112,6 @@ export async function isWorkingTreeClean(cwd: string, options: CleanWorkingTreeO
 
   return dirtyLines.every((line) => {
     const file = line.slice(3);
-    return file.startsWith(".pi/prd-runner/");
+    return file === ".pi" || file === ".pi/" || file.startsWith(".pi/prd-runner/");
   });
 }

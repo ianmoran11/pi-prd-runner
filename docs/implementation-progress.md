@@ -324,3 +324,32 @@ Known limitations:
 
 Next PRD:
 - `prd-012-merge.md`
+
+## prd-012-merge
+
+Status: complete
+
+Summary:
+- Added squash merge helper with target checkout, clean-tree check, merge conflict detection, abort/reset fallback, commit creation, and merge commit recording.
+- Integrated merge behavior into the runner after reviewer approval.
+- Implemented auto-mode default merge, supervised prompt-before-merge, and `--no-auto-merge`.
+- Added merge events and merge-conflict stuck handling.
+
+Files changed:
+- `src/git/merge.ts`
+- `src/git/git.ts`
+- `src/core/runner.ts`
+- `tests/merge.test.ts`
+- `tests/core-runner-loop.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/merge.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Supervised diff/report prompt choices are logged and deferred to the supervised controls PRD.
+
+Next PRD:
+- `prd-013-commands-run-resume-status.md`
