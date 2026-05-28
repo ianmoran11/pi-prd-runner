@@ -206,3 +206,32 @@ Known limitations:
 
 Next PRD:
 - `prd-008-diff-artifacts-checks.md`
+
+## prd-008-diff-artifacts-checks
+
+Status: complete
+
+Summary:
+- Added Git diff, changed-file, and diff-stat helpers.
+- Added run/PRD/attempt artifact path helpers and writers for diff, changed files, metadata, placeholders, and stuck reports.
+- Added structured local check execution with stdout/stderr, status, exit code, duration, and timeout tracking.
+- Added check result Markdown artifact generation.
+
+Files changed:
+- `src/git/diff.ts`
+- `src/types/artifact.ts`
+- `src/core/artifacts.ts`
+- `src/checks/check-runner.ts`
+- `tests/diff-artifacts-checks.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/diff-artifacts-checks.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Check commands execute locally through the shell; no remote CI integration is implemented for v0.1.0.
+
+Next PRD:
+- `prd-009-agent-prompts-schemas.md`
