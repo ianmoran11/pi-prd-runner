@@ -31,6 +31,7 @@ import { createPrdState, transitionPrd } from "./state-machine.js";
 import { promptSupervisedControl } from "./supervised.js";
 import { loadState, writeState } from "./state.js";
 import { ensurePrdBranch } from "../git/branches.js";
+import { isWorkingTreeClean } from "../git/git.js";
 import { MergeConflictError, mergeCommitMessage, squashMerge } from "../git/merge.js";
 import { ensurePrdWorktree } from "../git/worktrees.js";
 
@@ -451,6 +452,29 @@ export async function runPrdQueue(cwd: string, host: PiHost, options: RunOptions
         `# Run Summary\n\nStatus: failed\n\nReason: Invalid PRDs.\n\n${validation.errors.map((error) => `- ${error.file ?? "unknown"}: ${error.message}`).join("\n")}\n`
       );
       return { runId, status: "failed", processed, stuck };
+    }
+
+    const clean = await isWorkingTreeClean(cwd, { allowPiGenerated: true });
+    if (!clean) {
+      if (mode === "auto") {
+        await appendEvent(cwd, { type: "run.failed", runId, reason: "Dirty working tree." });
+        await writeRunSummary(cwd, runId, "# Run Summary\n\nStatus: failed\n\nReason: Dirty working tree.\n");
+        return { runId, status: "failed", processed, stuck };
+      }
+
+      const result = await host.prompt?.({
+        message: "Target working tree has non-generated changes. Continue?",
+        defaultChoice: "continue",
+        choices: [
+          { key: "continue", label: "continue" },
+          { key: "stop", label: "stop" }
+        ]
+      });
+      if ((result?.choice ?? "continue") !== "continue") {
+        await appendEvent(cwd, { type: "run.stopped", runId, reason: "Dirty working tree." });
+        await writeRunSummary(cwd, runId, "# Run Summary\n\nStatus: stopped\n\nReason: Dirty working tree.\n");
+        return { runId, status: "stopped", processed, stuck };
+      }
     }
 
     const currentPrdState = state.currentPrd ? state.prds[state.currentPrd] : undefined;
