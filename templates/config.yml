@@ -1,0 +1,68 @@
+schemaVersion: 1
+
+project:
+  prdDirectory: docs/prds
+  prdPattern: "prd-*.md"
+  baseBranch: main
+
+worktrees:
+  enabled: true
+  directory: .pi/prd-runner/worktrees
+  cleanAfterMerge: false
+
+branches:
+  prefix: "pi/"
+  strategy: one-branch-per-prd
+
+run:
+  defaultMode: supervised
+  serial: true
+  maxReviewCycles: 5
+  immediateRevisionOnFailedChecks: true
+
+supervised:
+  autoMerge: false
+  pauseBeforePrd: true
+  pauseAfterImplementation: true
+  pauseBeforeReview: false
+  pauseBeforeMerge: true
+  pauseOnFailedChecks: true
+  pauseOnChangesRequested: false
+
+auto:
+  autoMerge: true
+  continueToNextPrd: true
+  stopOnMaxReviewCycles: true
+  stopOnMergeConflict: true
+  stopOnStuck: true
+
+permissions:
+  agentPermissions: full
+
+checks:
+  default:
+    - name: test
+      command: "npm test"
+    - name: lint
+      command: "npm run lint"
+
+review:
+  approvalAuthority: reviewer
+  requireFreshReviewSession: true
+  requireStructuredDecision: true
+
+merge:
+  targetBranch: main
+  strategy: squash
+  deleteBranchAfterMerge: false
+  requireCleanWorkingTree: true
+
+artifacts:
+  writeImplementationSummary: true
+  writeReviewReport: true
+  writeReviewJson: true
+  writeTestResults: true
+  writeDiffPatch: true
+  writeChangedFiles: true
+  writeRunSummary: true
+

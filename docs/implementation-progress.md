@@ -30,3 +30,36 @@ Known limitations:
 
 Next PRD:
 - `prd-002-config-init.md`
+
+## prd-002-config-init
+
+Status: complete
+
+Summary:
+- Added typed runner configuration and default YAML matching the spec.
+- Implemented config validation, load, and write helpers.
+- Implemented `/prd-init` with idempotent initialization, `--force`, and `--with-example`.
+- Added config and PRD templates.
+- Added tests for fresh init, idempotency, force overwrite, and example PRD creation.
+
+Files changed:
+- `src/types/config.ts`
+- `src/types/state.ts`
+- `src/core/config.ts`
+- `src/core/init.ts`
+- `src/commands/prd-init.ts`
+- `templates/config.yml`
+- `templates/prd-template.md`
+- `tests/init.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/init.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Runtime state operations are still limited to initial state creation until the state/events PRD.
+
+Next PRD:
+- `prd-003-prd-parser-validator.md`
