@@ -94,3 +94,33 @@ Known limitations:
 
 Next PRD:
 - `prd-004-state-events-locking.md`
+
+## prd-004-state-events-locking
+
+Status: complete
+
+Summary:
+- Expanded the durable state model for runner and per-PRD state.
+- Added atomic state writes, backup creation, schema migration placeholder, and corrupted-state preservation.
+- Added append-only NDJSON event writing, reading, and filtering.
+- Added lock acquisition, release, conflict detection, and stale-lock replacement.
+
+Files changed:
+- `src/types/state.ts`
+- `src/types/event.ts`
+- `src/core/state.ts`
+- `src/core/events.ts`
+- `src/core/lock.ts`
+- `tests/state-events-lock.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/state-events-lock.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Corrupted state is preserved and reported; full event-based recovery will be handled by reconciliation/resume work.
+
+Next PRD:
+- `prd-005-state-machine-scheduler.md`
