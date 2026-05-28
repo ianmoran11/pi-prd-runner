@@ -4,6 +4,50 @@
 
 The v0.1.0 implementation is intentionally local-only and serial. There is no GitHub PR creation, remote CI integration, parallel scheduler, or hosted dashboard.
 
+## Install Pi
+
+Install the Pi coding agent first:
+
+```bash
+curl -fsSL https://pi.dev/install.sh | sh
+```
+
+Or install it with npm:
+
+```bash
+npm install -g @earendil-works/pi-coding-agent
+```
+
+Then authenticate from inside Pi:
+
+```bash
+pi
+/login
+```
+
+You can also authenticate with an API key, for example:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+pi
+```
+
+## Install pi-prd-runner in Pi
+
+Install this package from GitHub so Pi can discover its prompts and skills:
+
+```bash
+pi install git:github.com/ianmoran11/pi-prd-runner
+```
+
+For a project-local install, add `-l`:
+
+```bash
+pi install git:github.com/ianmoran11/pi-prd-runner -l
+```
+
+If you install it while a Pi session is already open, run `/reload` so Pi reloads package resources.
+
 ## Quickstart
 
 ```bash
