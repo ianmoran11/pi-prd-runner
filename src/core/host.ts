@@ -91,6 +91,7 @@ export class MockHost implements PiHost {
   promptResults: PromptResult[] = [];
   agentSessions: AgentSessionSpec[] = [];
   agentResults: AgentSessionResult[] = [];
+  agentSessionHandler?: (spec: AgentSessionSpec) => Promise<AgentSessionResult> | AgentSessionResult;
 
   log(message: string): void {
     this.logs.push(message);
@@ -119,6 +120,9 @@ export class MockHost implements PiHost {
 
   async runAgentSession(spec: AgentSessionSpec): Promise<AgentSessionResult> {
     this.agentSessions.push(spec);
+    if (this.agentSessionHandler) {
+      return this.agentSessionHandler(spec);
+    }
     return this.agentResults.shift() ?? { ok: true, output: "" };
   }
 }
@@ -127,4 +131,3 @@ export class PiExtensionHost extends ConsoleHost {
   // TODO: Replace this thin fallback with Pi runtime command and dashboard APIs
   // once the concrete extension API is available in the target environment.
 }
-

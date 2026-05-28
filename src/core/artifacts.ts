@@ -86,3 +86,6 @@ export async function writeAttemptMetadata(paths: AttemptArtifactPaths, metadata
   await writeJsonArtifact(paths.metadata, metadata);
 }
 
+export async function writeRunSummary(cwd: string, runId: string, content: string): Promise<void> {
+  await writeTextArtifact(path.join(runDirectory(cwd, runId), "run-summary.md"), content);
+}

@@ -295,3 +295,32 @@ Known limitations:
 
 Next PRD:
 - `prd-011-core-runner-loop.md`
+
+## prd-011-core-runner-loop
+
+Status: complete
+
+Summary:
+- Added the serial core runner loop with config/state loading, lock handling, PRD validation, branch/worktree setup, attempts, artifacts, checks, review, revisions, and stuck handling.
+- Implemented immediate revisions for failed checks and review changes.
+- Enforced maximum review cycles.
+- Added run summaries.
+- Extended `MockHost` with an agent session handler for integration-style tests.
+
+Files changed:
+- `src/core/runner.ts`
+- `src/core/host.ts`
+- `src/core/artifacts.ts`
+- `tests/core-runner-loop.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/core-runner-loop.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Approved PRDs stop at `approved`; merge behavior is implemented in the next PRD.
+
+Next PRD:
+- `prd-012-merge.md`
