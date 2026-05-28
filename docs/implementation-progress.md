@@ -179,3 +179,30 @@ Known limitations:
 
 Next PRD:
 - `prd-007-worktrees.md`
+
+## prd-007-worktrees
+
+Status: complete
+
+Summary:
+- Added deterministic worktree paths under `.pi/prd-runner/worktrees`.
+- Implemented PRD worktree creation and clean reuse.
+- Added dirty worktree and wrong-branch detection.
+- Added optional worktree removal helper.
+- Covered worktree behavior with temporary Git repository tests.
+
+Files changed:
+- `src/git/worktrees.ts`
+- `tests/worktrees.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/worktrees.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Worktree cleanup remains opt-in, matching the v0.1.0 default to keep worktrees after merge.
+
+Next PRD:
+- `prd-008-diff-artifacts-checks.md`
