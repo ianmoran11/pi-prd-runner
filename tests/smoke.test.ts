@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activate, getPublicCommands, MockHost } from "../src/index.js";
+import piPrdRunnerExtension, { activate, getPublicCommands, MockHost } from "../src/index.js";
 
 const expectedCommands = [
   "/prd-init",
@@ -25,5 +25,17 @@ describe("package skeleton", () => {
 
   it("exposes command metadata without side effects", () => {
     expect(getPublicCommands().map((command) => command.name)).toEqual(expectedCommands);
+  });
+
+  it("registers Pi slash commands through the default extension export", () => {
+    const registered: string[] = [];
+
+    piPrdRunnerExtension({
+      registerCommand: (name) => {
+        registered.push(name);
+      }
+    });
+
+    expect(registered).toEqual(expectedCommands.map((command) => command.slice(1)));
   });
 });

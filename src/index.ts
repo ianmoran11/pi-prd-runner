@@ -1,4 +1,5 @@
 export * from "./core/host.js";
+export { default } from "./extension.js";
 export * from "./extension.js";
 export * from "./core/runner.js";
 export * from "./core/config.js";

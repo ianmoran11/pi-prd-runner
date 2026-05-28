@@ -9,6 +9,9 @@
     "worktree"
   ],
   "pi": {
+    "extensions": [
+      "./src/extension.ts"
+    ],
     "skills": [
       "./skills"
     ],
@@ -25,6 +28,7 @@
   },
   "files": [
     "dist",
+    "src",
     "README.md",
     "templates",
     "prompts",
