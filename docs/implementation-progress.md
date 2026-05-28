@@ -353,3 +353,36 @@ Known limitations:
 
 Next PRD:
 - `prd-013-commands-run-resume-status.md`
+
+## prd-013-commands-run-resume-status
+
+Status: complete
+
+Summary:
+- Added shared command argument parsing.
+- Implemented `/prd-run` with mode, from, only, max review cycles, and `--no-auto-merge`.
+- Implemented `/prd-resume` with reconciliation before continuing.
+- Implemented `/prd-status` with text, JSON, and verbose output.
+- Added state/Git reconciliation checks for PRD files, branches, worktrees, and worktree branch matches.
+- Added resume support for an approved PRD waiting before merge.
+
+Files changed:
+- `src/commands/args.ts`
+- `src/commands/prd-run.ts`
+- `src/commands/prd-resume.ts`
+- `src/commands/prd-status.ts`
+- `src/core/reconciliation.ts`
+- `src/core/runner.ts`
+- `tests/commands-run-resume-status.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/commands-run-resume-status.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Reconciliation performs conservative safe repairs and reports unsafe mismatches rather than guessing.
+
+Next PRD:
+- `prd-014-dashboard.md`

@@ -421,6 +421,24 @@ export async function runPrdQueue(cwd: string, host: PiHost, options: RunOptions
       throw new Error(`Invalid PRDs:\n${validation.errors.map((error) => error.message).join("\n")}`);
     }
 
+    const currentPrdState = state.currentPrd ? state.prds[state.currentPrd] : undefined;
+    if (currentPrdState?.status === "approved" && currentPrdState.branch) {
+      const currentPrd = prds.find((prd) => prd.id === currentPrdState.id);
+      if (currentPrd) {
+        const result = await mergeApprovedPrd(cwd, host, config, state, currentPrd, runId, currentPrdState.branch, options);
+        state = result.state;
+        processed.push(currentPrd.id);
+        if (result.status === "stuck") {
+          stuck.push(currentPrd.id);
+          return { runId, status: "stuck", processed, stuck };
+        }
+        if (mode === "supervised" || result.status === "approved") {
+          await writeRunSummary(cwd, runId, `# Run Summary\n\nStatus: stopped\n\nProcessed PRDs: ${processed.join(", ")}\n`);
+          return { runId, status: "stopped", processed, stuck };
+        }
+      }
+    }
+
     while (true) {
       const selection = selectNextPrd(prds, state, { from: options.from, only: options.only });
       if (!selection.prd) {
