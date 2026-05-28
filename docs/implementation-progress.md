@@ -63,3 +63,34 @@ Known limitations:
 
 Next PRD:
 - `prd-003-prd-parser-validator.md`
+
+## prd-003-prd-parser-validator
+
+Status: complete
+
+Summary:
+- Added PRD domain types and supported status definitions.
+- Implemented Markdown frontmatter parsing, section extraction, acceptance criteria extraction, required checks, and reviewer checklist parsing.
+- Implemented PRD loading from the configured `docs/prds` directory and filename pattern.
+- Added validation for required fields, statuses, sections, scope lists, duplicate IDs, dependency existence, and dependency cycles.
+- Implemented `/prd-validate`, including `--strict` and safe status normalization with `--fix`.
+
+Files changed:
+- `src/types/prd.ts`
+- `src/core/prd-parser.ts`
+- `src/core/prd-validator.ts`
+- `src/core/config.ts`
+- `src/commands/prd-validate.ts`
+- `tests/prd-parser-validator.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/prd-parser-validator.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- `--fix` intentionally performs only safe status normalization.
+
+Next PRD:
+- `prd-004-state-events-locking.md`

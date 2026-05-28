@@ -191,8 +191,15 @@ export async function loadConfig(cwd: string): Promise<RunnerConfig> {
   return validateConfig(YAML.parse(raw));
 }
 
+export async function loadConfigOrDefault(cwd: string): Promise<RunnerConfig> {
+  try {
+    return await loadConfig(cwd);
+  } catch {
+    return DEFAULT_CONFIG;
+  }
+}
+
 export async function writeConfig(cwd: string, config: RunnerConfig = DEFAULT_CONFIG): Promise<void> {
   await mkdir(path.dirname(configPath(cwd)), { recursive: true });
   await writeFile(configPath(cwd), stringifyConfig(config), "utf8");
 }
-
