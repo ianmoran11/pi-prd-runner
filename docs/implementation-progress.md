@@ -235,3 +235,35 @@ Known limitations:
 
 Next PRD:
 - `prd-009-agent-prompts-schemas.md`
+
+## prd-009-agent-prompts-schemas
+
+Status: complete
+
+Summary:
+- Added typed review and implementation result models.
+- Added Zod schemas for review decisions, acceptance-criterion statuses, risks, and review JSON.
+- Added review JSON extraction and validation helpers.
+- Added implementation, review, and revision prompt rendering functions.
+- Added prompt template files and PRD implementation/review skills.
+
+Files changed:
+- `src/types/review.ts`
+- `src/agents/schemas.ts`
+- `src/agents/prompts.ts`
+- `prompts/*.md`
+- `skills/prd-implementation/SKILL.md`
+- `skills/prd-review/SKILL.md`
+- `tests/agent-prompts-schemas.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/agent-prompts-schemas.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Prompt renderers are file-independent for local testability; template files remain packaged as host-facing reference prompts.
+
+Next PRD:
+- `prd-010-agent-orchestration.md`
