@@ -1,0 +1,39 @@
+{
+  "name": "pi-prd-runner",
+  "version": "0.1.0",
+  "description": "Serial PRD runner for Pi projects using Git worktrees.",
+  "type": "module",
+  "bin": {
+    "pi-prd-runner": "dist/cli.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "templates",
+    "prompts",
+    "skills"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "npm run typecheck",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.3",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
+
