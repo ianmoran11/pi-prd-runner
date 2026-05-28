@@ -131,6 +131,20 @@ describe("auto mode", () => {
     expect(state.prds["prd-002"]).toBeUndefined();
   });
 
+  it("uses the default maximum of 5 review cycles", async () => {
+    await setupRepo({ "prd-001.md": validPrd("prd-001") });
+    const host = new MockHost();
+    host.agentSessionHandler = async (spec: AgentSessionSpec) =>
+      spec.kind === "review" ? { ok: true, output: changesReview() } : { ok: true, output: "implemented" };
+
+    const result = await runPrdQueue(repoDir, host, { mode: "auto" });
+    const state = await loadState(repoDir);
+
+    expect(result.status).toBe("stuck");
+    expect(state.prds["prd-001"].attempt).toBe(5);
+    expect(state.prds["prd-001"].maxReviewCycles).toBe(5);
+  });
+
   it("stops safely on invalid PRDs", async () => {
     await setupRepo({
       "prd-001.md": `---
