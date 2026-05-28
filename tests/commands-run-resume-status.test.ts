@@ -151,7 +151,7 @@ describe("run, resume, and status commands", () => {
   it("/prd-resume can merge an approved PRD after a supervised stop", async () => {
     await setupRepo();
     const firstHost = hostThatCommits("resume.txt");
-    firstHost.promptResults.push({ choice: "skip" });
+    firstHost.promptResults.push({ choice: "continue" }, { choice: "continue" }, { choice: "skip" });
     await prdRun({ cwd: repoDir, host: firstHost }, ["--mode", "supervised"]);
     expect((await loadState(repoDir)).prds["prd-001"].status).toBe("approved");
 

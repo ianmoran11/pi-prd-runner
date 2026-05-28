@@ -147,13 +147,13 @@ describe("runner merge behavior", () => {
   it("supervised mode prompts before merging", async () => {
     await setupRunnerRepo();
     const host = committingHost("supervised.txt");
-    host.promptResults.push({ choice: "merge" });
+    host.promptResults.push({ choice: "continue" }, { choice: "continue" }, { choice: "merge" });
 
     const result = await runPrdQueue(repoDir, host, { mode: "supervised" });
     const state = await loadState(repoDir);
 
     expect(result.status).toBe("stopped");
-    expect(host.prompts[0].message).toContain("approved");
+    expect(host.prompts.at(-1)?.message).toContain("before merge");
     expect(state.prds["prd-001"].status).toBe("merged");
     expect(await readFile(path.join(repoDir, "supervised.txt"), "utf8")).toBe("feature\n");
   });

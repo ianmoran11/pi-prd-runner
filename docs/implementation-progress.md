@@ -415,3 +415,33 @@ Known limitations:
 
 Next PRD:
 - `prd-015-supervised-controls.md`
+
+## prd-015-supervised-controls
+
+Status: complete
+
+Summary:
+- Added reusable supervised control prompts for PRD gates.
+- Implemented pause before PRD, pause after implementation, pause on failed checks, pause on review changes when configured, and before-merge controls.
+- Added host-mediated view diff/report behavior.
+- Added skip and stop behavior at safe supervised gates.
+- Updated supervised merge flows to account for the new pause points.
+
+Files changed:
+- `src/core/supervised.ts`
+- `src/core/runner.ts`
+- `tests/supervised-controls.test.ts`
+- `tests/merge.test.ts`
+- `tests/commands-run-resume-status.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/supervised-controls.test.ts tests/merge.test.ts tests/commands-run-resume-status.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Retry from an in-progress supervised pause is represented as continue/revision flow; operational retry command support follows in PRD 017.
+
+Next PRD:
+- `prd-016-auto-mode.md`

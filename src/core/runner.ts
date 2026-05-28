@@ -28,6 +28,7 @@ import { loadPrds } from "./prd-parser.js";
 import { validatePrds } from "./prd-validator.js";
 import { selectNextPrd } from "./scheduler.js";
 import { createPrdState, transitionPrd } from "./state-machine.js";
+import { promptSupervisedControl } from "./supervised.js";
 import { loadState, writeState } from "./state.js";
 import { ensurePrdBranch } from "../git/branches.js";
 import { MergeConflictError, mergeCommitMessage, squashMerge } from "../git/merge.js";
@@ -147,11 +148,23 @@ async function processPrd(
   prd: ParsedPrd,
   runId: string,
   options: RunOptions
-): Promise<{ state: RunnerState; status: "approved" | "merged" | "stuck" }> {
+): Promise<{ state: RunnerState; status: "approved" | "merged" | "skipped" | "stopped" | "stuck" }> {
   const maxReviewCycles = options.maxReviewCycles ?? prd.maxReviewCycles ?? config.run.maxReviewCycles;
   state = ensurePrdState(state, prd, maxReviewCycles);
   state = await writeState(cwd, state).then(() => state);
   state = await ensureReady(cwd, state, prd.id, runId);
+
+  if (state.mode === "supervised" && config.supervised.pauseBeforePrd) {
+    const action = await promptSupervisedControl(host, { gate: "before_prd", prdId: prd.id });
+    if (action === "skip") {
+      state = await transitionPrd(cwd, state, prd.id, "skipped", { runId, message: "Skipped from supervised before-PRD gate." });
+      await appendEvent(cwd, { type: "prd.skipped", runId, prd: prd.id, reason: "Skipped from supervised before-PRD gate." });
+      return { state, status: "skipped" };
+    }
+    if (action === "stop" || action === "pause") {
+      return { state, status: "stopped" };
+    }
+  }
 
   await appendEvent(cwd, { type: "prd.started", runId, prd: prd.id });
 
@@ -207,6 +220,18 @@ async function processPrd(
     await writeDiffArtifacts(worktreeResult.path, paths, config.merge.targetBranch);
     await appendEvent(cwd, { type: "implementation.completed", runId, prd: prd.id, attempt });
 
+    if (state.mode === "supervised" && config.supervised.pauseAfterImplementation) {
+      const action = await promptSupervisedControl(host, {
+        gate: "after_implementation",
+        prdId: prd.id,
+        diff: await readIfExists(paths.diffPatch),
+        report: await readIfExists(paths.implementationSummary)
+      });
+      if (action === "stop" || action === "pause") {
+        return { state, status: "stopped" };
+      }
+    }
+
     state = await transitionPrd(cwd, state, prd.id, "implemented", { runId });
     state = await transitionPrd(cwd, state, prd.id, "checking", { runId });
     await appendEvent(cwd, { type: "checks.started", runId, prd: prd.id, attempt });
@@ -229,6 +254,18 @@ async function processPrd(
       state = await updatePrdFields(cwd, state, prd.id, { lastCheckStatus: "failed" });
       await appendEvent(cwd, { type: "checks.failed", runId, prd: prd.id, attempt, status: "failed" });
       state = await transitionPrd(cwd, state, prd.id, "changes_requested", { runId, message: "Checks failed." });
+
+      if (state.mode === "supervised" && config.supervised.pauseOnFailedChecks) {
+        const action = await promptSupervisedControl(host, {
+          gate: "failed_checks",
+          prdId: prd.id,
+          diff: await readIfExists(paths.diffPatch),
+          report: await readIfExists(paths.testResults)
+        });
+        if (action === "stop" || action === "pause") {
+          return { state, status: "stopped" };
+        }
+      }
 
       if (attempt >= maxReviewCycles) {
         state = await transitionToStuck(cwd, state, prd, runId, "Exceeded maximum review cycles.", attempt, "Checks failed.");
@@ -271,6 +308,17 @@ async function processPrd(
 
     requiredRevisions = review.review.requiredRevisions;
     state = await transitionPrd(cwd, state, prd.id, "changes_requested", { runId, message: "Review requested changes." });
+    if (state.mode === "supervised" && config.supervised.pauseOnChangesRequested) {
+      const action = await promptSupervisedControl(host, {
+        gate: "changes_requested",
+        prdId: prd.id,
+        diff: await readIfExists(paths.diffPatch),
+        report: await readIfExists(paths.reviewReport)
+      });
+      if (action === "stop" || action === "pause") {
+        return { state, status: "stopped" };
+      }
+    }
     if (attempt >= maxReviewCycles) {
       state = await transitionToStuck(cwd, state, prd, runId, "Exceeded maximum review cycles.", attempt, review.review.summary);
       return { state, status: "stuck" };
@@ -300,29 +348,8 @@ async function shouldMergeApproved(
     return true;
   }
 
-  const result = await host.prompt?.({
-    message: `PRD ${prd.id} approved. Merge into ${config.merge.targetBranch}?`,
-    defaultChoice: "merge",
-    choices: [
-      { key: "merge", label: "merge into main" },
-      { key: "diff", label: "view diff" },
-      { key: "review", label: "view latest report" },
-      { key: "skip", label: "skip merge" },
-      { key: "stop", label: "stop" }
-    ]
-  });
-
-  if (result?.choice === "diff") {
-    host.log("Diff view requested; merge skipped for this prompt cycle.");
-    return false;
-  }
-
-  if (result?.choice === "review") {
-    host.log("Review report requested; merge skipped for this prompt cycle.");
-    return false;
-  }
-
-  return (result?.choice ?? "merge") === "merge";
+  const action = await promptSupervisedControl(host, { gate: "before_merge", prdId: prd.id });
+  return action === "merge";
 }
 
 async function mergeApprovedPrd(
@@ -457,6 +484,12 @@ export async function runPrdQueue(cwd: string, host: PiHost, options: RunOptions
         await appendEvent(cwd, { type: "run.stopped", runId, reason: "PRD stuck." });
         await writeRunSummary(cwd, runId, `# Run Summary\n\nStatus: stuck\n\nProcessed PRDs: ${processed.join(", ")}\nStuck PRDs: ${stuck.join(", ")}\n`);
         return { runId, status: "stuck", processed, stuck };
+      }
+
+      if (result.status === "stopped") {
+        await appendEvent(cwd, { type: "run.stopped", runId, reason: "Supervised stop." });
+        await writeRunSummary(cwd, runId, `# Run Summary\n\nStatus: stopped\n\nProcessed PRDs: ${processed.join(", ")}\n`);
+        return { runId, status: "stopped", processed, stuck };
       }
 
       if (mode === "supervised" || options.only || options.stopAfterApproval) {
