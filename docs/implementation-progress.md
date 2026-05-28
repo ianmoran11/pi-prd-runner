@@ -474,3 +474,34 @@ Known limitations:
 
 Next PRD:
 - `prd-017-control-commands.md`
+
+## prd-017-control-commands
+
+Status: complete
+
+Summary:
+- Implemented `/prd-stop` with graceful and immediate stop requests.
+- Implemented `/prd-retry` for current or explicit PRDs with attempt incrementing.
+- Implemented `/prd-skip` with reason capture and events.
+- Implemented `/prd-mark-stuck` with reason capture, stuck report generation, state updates, and events.
+- Added shared control-command state helpers.
+
+Files changed:
+- `src/commands/control-helpers.ts`
+- `src/commands/prd-stop.ts`
+- `src/commands/prd-retry.ts`
+- `src/commands/prd-skip.ts`
+- `src/commands/prd-mark-stuck.ts`
+- `tests/control-commands.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/control-commands.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Retry records the requested retry in durable state; the next runner/resume cycle feeds revision context through the existing revision path.
+
+Next PRD:
+- `prd-018-documentation-examples.md`
