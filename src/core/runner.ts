@@ -45,7 +45,7 @@ export interface RunOptions {
 
 export interface RunResult {
   runId: string;
-  status: "completed" | "stopped" | "stuck";
+  status: "completed" | "stopped" | "stuck" | "failed";
   processed: string[];
   stuck: string[];
 }
@@ -445,7 +445,12 @@ export async function runPrdQueue(cwd: string, host: PiHost, options: RunOptions
     const validation = validatePrds(prds);
     if (!validation.valid) {
       await appendEvent(cwd, { type: "run.failed", runId, reason: "Invalid PRDs.", metadata: { errors: validation.errors } });
-      throw new Error(`Invalid PRDs:\n${validation.errors.map((error) => error.message).join("\n")}`);
+      await writeRunSummary(
+        cwd,
+        runId,
+        `# Run Summary\n\nStatus: failed\n\nReason: Invalid PRDs.\n\n${validation.errors.map((error) => `- ${error.file ?? "unknown"}: ${error.message}`).join("\n")}\n`
+      );
+      return { runId, status: "failed", processed, stuck };
     }
 
     const currentPrdState = state.currentPrd ? state.prds[state.currentPrd] : undefined;

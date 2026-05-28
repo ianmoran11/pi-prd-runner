@@ -30,5 +30,5 @@ export async function prdResume(context: CommandContext, args: string[] = []): P
   const result = await runPrdQueue(context.cwd, context.host, { ...options, mode: options.mode ?? state.mode });
   const message = `Resumed PRD run ${result.runId}; status ${result.status}.`;
   context.host.log(message);
-  return { ok: result.status !== "stuck", message, data: result };
+  return { ok: result.status !== "stuck" && result.status !== "failed", message, data: result };
 }

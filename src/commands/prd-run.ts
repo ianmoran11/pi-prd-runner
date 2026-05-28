@@ -25,5 +25,5 @@ export async function prdRun(context: CommandContext, args: string[] = []): Prom
   const result = await runPrdQueue(context.cwd, context.host, options);
   const message = `PRD run ${result.runId} ${result.status}; processed ${result.processed.length} PRD(s).`;
   context.host.log(message);
-  return { ok: result.status !== "stuck", message, data: result };
+  return { ok: result.status !== "stuck" && result.status !== "failed", message, data: result };
 }

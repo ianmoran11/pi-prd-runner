@@ -445,3 +445,32 @@ Known limitations:
 
 Next PRD:
 - `prd-016-auto-mode.md`
+
+## prd-016-auto-mode
+
+Status: complete
+
+Summary:
+- Tightened auto-mode failure handling so invalid PRDs stop safely with `run.failed` and a failed run summary.
+- Added coverage for serial multi-PRD auto runs.
+- Verified auto-mode default merge into `main`.
+- Verified auto stop on stuck PRDs and invalid PRDs.
+- Verified `--no-auto-merge` leaves approved PRD branches unmerged.
+
+Files changed:
+- `src/core/runner.ts`
+- `src/commands/prd-run.ts`
+- `src/commands/prd-resume.ts`
+- `tests/auto-mode.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/auto-mode.test.ts tests/commands-run-resume-status.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Auto mode remains intentionally local-only and serial for v0.1.0.
+
+Next PRD:
+- `prd-017-control-commands.md`
