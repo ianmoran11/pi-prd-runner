@@ -151,3 +151,31 @@ Known limitations:
 
 Next PRD:
 - `prd-006-git-wrapper-branches.md`
+
+## prd-006-git-wrapper-branches
+
+Status: complete
+
+Summary:
+- Added a structured Git command runner with stdout, stderr, exit code, cwd, and timeout handling.
+- Added helpers for repository root, current branch, clean working tree, branch existence, and branch commits.
+- Added deterministic PRD branch naming and branch creation from `main`.
+- Added safe branch reuse and conflict detection.
+- Covered behavior with temporary Git repository tests.
+
+Files changed:
+- `src/git/git.ts`
+- `src/git/branches.ts`
+- `tests/git-branches.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/git-branches.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Existing branch reuse is controlled by caller intent; runner state ownership checks will be enforced in the runner/reconciliation layer.
+
+Next PRD:
+- `prd-007-worktrees.md`
