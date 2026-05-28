@@ -124,3 +124,30 @@ Known limitations:
 
 Next PRD:
 - `prd-005-state-machine-scheduler.md`
+
+## prd-005-state-machine-scheduler
+
+Status: complete
+
+Summary:
+- Added explicit PRD status transitions from the spec.
+- Implemented transition validation, timestamp updates, state writes, and `prd.status_changed` events.
+- Added PRD state initialization from parsed PRDs.
+- Implemented the serial scheduler with dependency ordering and `--from`/`--only` filters.
+
+Files changed:
+- `src/core/state-machine.ts`
+- `src/core/scheduler.ts`
+- `tests/state-machine-scheduler.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/state-machine-scheduler.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Scheduler intentionally remains serial for v0.1.0.
+
+Next PRD:
+- `prd-006-git-wrapper-branches.md`
