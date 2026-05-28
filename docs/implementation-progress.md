@@ -386,3 +386,32 @@ Known limitations:
 
 Next PRD:
 - `prd-014-dashboard.md`
+
+## prd-014-dashboard
+
+Status: complete
+
+Summary:
+- Added a dashboard model with queue, current stage, attempts, branch, worktree, checks, review decision, latest finding, and controls.
+- Added a console text renderer with compact and verbose options.
+- Added dashboard command integration and host rendering fallback.
+- Added idle dashboard behavior when no active run exists.
+
+Files changed:
+- `src/dashboard/dashboard-model.ts`
+- `src/dashboard/dashboard-renderer.ts`
+- `src/dashboard/dashboard.ts`
+- `src/commands/prd-dashboard.ts`
+- `tests/dashboard.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/dashboard.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- The dashboard is a local console/TUI fallback; concrete Pi dashboard APIs remain behind `PiHost.renderDashboard`.
+
+Next PRD:
+- `prd-015-supervised-controls.md`
