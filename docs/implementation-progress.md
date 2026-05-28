@@ -26,7 +26,7 @@ Tests run:
 - `npm run typecheck`
 
 Known limitations:
-- Command handlers are placeholders until their corresponding PRDs are implemented.
+- None remaining for this scaffold slice; command handlers were completed in later PRDs.
 
 Next PRD:
 - `prd-002-config-init.md`
@@ -505,3 +505,41 @@ Known limitations:
 
 Next PRD:
 - `prd-018-documentation-examples.md`
+
+## prd-018-documentation-examples
+
+Status: complete
+
+Summary:
+- Rewrote the README with install, quickstart, commands, config, PRD format, supervised mode, auto mode, worktree behavior, merge behavior, artifacts, recovery, host adapter, and known limitations.
+- Added example PRDs and example implementation, review, and stuck artifacts.
+- Added a v0.1.0 release checklist and marked verified items.
+- Added the local CLI entrypoint and compatibility exports for checks, attempts, and host types.
+- Removed the remaining command placeholder helper from the scaffold.
+
+Files changed:
+- `README.md`
+- `src/cli.ts`
+- `src/index.ts`
+- `src/checks/checks.ts`
+- `src/core/attempts.ts`
+- `src/types/host.ts`
+- `src/commands/types.ts`
+- `docs/examples/prds/*.md`
+- `docs/examples/artifacts/*.md`
+- `docs/release-checklist.md`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm install`
+- `npm test`
+- `npm run typecheck`
+- `npm run lint`
+- `npm run build`
+- CLI smoke: `prd-init --with-example` and `prd-validate` in a temporary directory
+
+Known limitations:
+- Concrete Pi runtime command/dashboard APIs are not available in this environment; `PiExtensionHost` remains the typed adapter boundary with a TODO while all core behavior is testable through `ConsoleHost` and `MockHost`.
+
+Next PRD:
+- None. v0.1.0 acceptance audit follows.

@@ -1,3 +1,10 @@
 export * from "./core/host.js";
 export * from "./extension.js";
-
+export * from "./core/runner.js";
+export * from "./core/config.js";
+export * from "./core/prd-parser.js";
+export * from "./core/prd-validator.js";
+export * from "./types/config.js";
+export * from "./types/prd.js";
+export type { CheckStatus, InitialRunnerState, PrdState, RunnerState } from "./types/state.js";
+export * from "./types/review.js";

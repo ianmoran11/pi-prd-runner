@@ -10,11 +10,3 @@ export interface CommandResult<T = unknown> {
   message: string;
   data?: T;
 }
-
-export function placeholderResult(command: string): CommandResult {
-  return {
-    ok: false,
-    message: `${command} is not implemented yet.`
-  };
-}
-
