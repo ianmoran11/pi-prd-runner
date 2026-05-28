@@ -267,3 +267,31 @@ Known limitations:
 
 Next PRD:
 - `prd-010-agent-orchestration.md`
+
+## prd-010-agent-orchestration
+
+Status: complete
+
+Summary:
+- Added implementation and revision agent session orchestration through `PiHost.runAgentSession`.
+- Added review session orchestration with `freshContext: true`.
+- Passed PRD, diff, changed files, summaries, and test results through rendered prompts.
+- Added structured review JSON parsing and one repair attempt for malformed output.
+- Covered implementation success, approved review, changes requested, blocked review, and malformed review repair with `MockHost`.
+
+Files changed:
+- `src/agents/implementation-agent.ts`
+- `src/agents/review-agent.ts`
+- `tests/agent-orchestration.test.ts`
+- `docs/implementation-progress.md`
+
+Tests run:
+- `npm test -- tests/agent-orchestration.test.ts`
+- `npm run typecheck`
+- `npm test`
+
+Known limitations:
+- Real Pi agent execution remains behind the typed host adapter; local tests use `MockHost`.
+
+Next PRD:
+- `prd-011-core-runner-loop.md`
